@@ -1,648 +1,408 @@
-```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gebey Gembher - Professional AI Suite</title>
+    <title>Gebey Gembher - Fixed Version</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0a0a0a;
-            color: #f3f4f6;
-        }
-
-        .animate-glow {
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
-        }
-
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #22c55e;
-            border-radius: 10px;
-        }
-
-        .loader {
-            border: 3px solid rgba(34, 197, 94, 0.1);
-            border-top: 3px solid #22c55e;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .tab-active {
-            background-color: #22c55e;
-            color: #000;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; color: #f3f4f6; overflow-x: hidden; }
+        .bg-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .btn-primary { background-color: #22c55e; color: #000; transition: all 0.2s; }
+        .btn-primary:hover:not(:disabled) { background-color: #4ade80; transform: translateY(-1px); }
+        .btn-primary:active { transform: translateY(0); }
+        .tab-active { background: #22c55e; color: #000; box-shadow: 0 0 15px rgba(34, 197, 94, 0.3); }
+        .loader { border: 3px solid rgba(34, 197, 94, 0.1); border-top: 3px solid #22c55e; border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body class="selection:bg-green-500/30">
 
-    <!-- Header -->
     <header class="border-b border-white/10 bg-black/80 backdrop-blur-md sticky top-0 z-50">
         <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
             <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center animate-glow">
+                <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
                     <i data-lucide="sparkles" class="text-black w-5 h-5"></i>
                 </div>
-                <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-white to-green-400 bg-clip-text text-transparent">
-                    Gebey Gembher
-                </h1>
+                <h1 class="text-xl font-bold tracking-tight text-white">Gebey Gembher</h1>
             </div>
-            <div class="text-[10px] text-gray-500 uppercase tracking-widest font-medium">by: Fahrul Anam</div>
+            <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">by: Fahrul Anam</div>
         </div>
     </header>
 
     <main class="max-w-4xl mx-auto px-6 py-8 pb-24">
         <!-- Tab Navigation -->
         <div class="flex flex-wrap justify-between items-center mb-8 gap-4">
-            <div class="flex gap-1 p-1 bg-white/5 rounded-xl border border-white/5 w-fit">
-                <button id="btn-describe" onclick="switchTab('describe')" class="tab-active px-5 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2">
+            <div class="flex gap-1 p-1 bg-white/5 rounded-xl border border-white/5">
+                <button id="tab-describe" onclick="setTab('describe')" class="tab-active px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all">
                     <i data-lucide="camera" class="w-4 h-4"></i> Deskripsi
                 </button>
-                <button id="btn-generate" onclick="switchTab('generate')" class="text-gray-400 hover:bg-white/5 px-5 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2">
+                <button id="tab-generate" onclick="setTab('generate')" class="px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 text-gray-400 hover:bg-white/5 transition-all">
                     <i data-lucide="image" class="w-4 h-4"></i> Generate
                 </button>
             </div>
 
-            <div id="auto-toggle-container" class="hidden">
-                <div onclick="toggleAutoMode()" id="auto-mode-btn" class="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-gray-500 cursor-pointer transition-all">
+            <div id="auto-mode-container" class="hidden">
+                <button id="auto-mode-toggle" onclick="toggleAutoMode()" class="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-gray-500 hover:border-green-500/30 transition-all group">
                     <i data-lucide="zap" id="zap-icon" class="w-4 h-4"></i>
-                    <span class="text-xs font-bold uppercase tracking-tighter">Auto: <span id="auto-status">OFF</span></span>
-                </div>
+                    <span class="text-xs font-bold uppercase">Auto: <span id="auto-status">OFF</span></span>
+                </button>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-            <!-- Left Side: Input -->
+            <!-- Kolom Input -->
             <div class="space-y-6">
-                <div id="drop-zone" class="relative aspect-square rounded-2xl border-2 border-dashed border-white/10 hover:border-white/20 bg-white/5 transition-all flex flex-col items-center justify-center overflow-hidden group">
-                    <div id="preview-container" class="hidden w-full h-full relative">
-                        <img id="image-preview" src="" class="w-full h-full object-cover">
-                        <button onclick="clearImage()" class="absolute top-4 right-4 p-2 bg-black/60 rounded-full hover:bg-red-500 transition-all shadow-xl">
+                <div id="drop-area" class="relative aspect-square rounded-2xl border-2 border-dashed border-white/10 bg-white/5 hover:border-green-500/50 transition-all flex flex-col items-center justify-center overflow-hidden cursor-pointer">
+                    <div id="img-preview-box" class="hidden w-full h-full relative">
+                        <img id="main-preview" src="" class="w-full h-full object-cover">
+                        <button onclick="resetInput()" class="absolute top-4 right-4 p-2 bg-black/60 hover:bg-red-500 text-white rounded-full transition-all">
                             <i data-lucide="x" class="w-5 h-5"></i>
                         </button>
                     </div>
                     
-                    <div id="upload-prompt" class="text-center p-6 pointer-events-none">
-                        <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                            <i data-lucide="upload" class="text-gray-400 group-hover:text-green-500 w-6 h-6"></i>
+                    <div id="upload-hint" class="text-center p-6">
+                        <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-white/5">
+                            <i data-lucide="upload" class="text-gray-400 w-6 h-6"></i>
                         </div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Klik, Drag, atau Paste</p>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Klik / Drag / Paste Gambar</p>
                     </div>
-                    
-                    <input type="file" id="file-input" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
+                    <input type="file" id="input-file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
                 </div>
 
-                <div id="generate-controls" class="hidden space-y-3">
+                <div id="generate-inputs" class="hidden space-y-3">
                     <div class="flex justify-between items-center px-1">
-                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Instruksi Modifikasi</label>
-                        <button onclick="generateAutoPrompt()" id="auto-prompt-btn" class="text-[10px] font-bold text-green-500 hover:text-green-400 uppercase">
-                            <i data-lucide="wand-2" class="w-3 h-3 inline mr-1"></i> Auto Prompt
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Instruksi Prompt</label>
+                        <button onclick="triggerAutoPrompt()" id="btn-auto-prompt" class="text-[10px] font-bold text-green-500 hover:text-green-400 uppercase flex items-center gap-1">
+                            <i data-lucide="wand-2" class="w-3 h-3"></i> Auto Prompt
                         </button>
                     </div>
-                    <textarea id="prompt-input" placeholder="Tulis instruksi modifikasi..." class="w-full h-24 bg-white/5 border border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:ring-1 focus:ring-green-500/50 transition-all resize-none"></textarea>
+                    <textarea id="prompt-text" placeholder="Contoh: Ubah suasana menjadi malam hari dengan lampu neon..." class="w-full h-24 bg-white/5 border border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-green-500/50 transition-all resize-none"></textarea>
                 </div>
 
-                <button id="main-action-btn" onclick="handleAction()" class="w-full py-4 bg-green-500 text-black font-bold rounded-xl flex items-center justify-center gap-3 hover:bg-green-400 transition-all shadow-lg shadow-green-500/20 active:scale-95">
-                    <span id="btn-text">ANALISIS SEKARANG</span>
+                <button id="btn-execute" onclick="startProcess()" class="btn-primary w-full py-4 font-bold rounded-xl flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span id="btn-execute-text">ANALISIS SEKARANG</span>
                 </button>
             </div>
 
-            <!-- Right Side: Output -->
+            <!-- Kolom Output -->
             <div class="space-y-6">
-                <div class="min-h-[400px] bg-white/[0.03] border border-white/10 rounded-2xl overflow-hidden flex flex-col relative group">
+                <div class="min-h-[400px] bg-card rounded-2xl overflow-hidden flex flex-col">
                     <div class="px-5 py-3 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
-                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Output Panel</span>
-                        <div id="output-actions" class="hidden flex gap-1">
-                            <button id="copy-btn" onclick="copyResult()" class="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-green-500 transition-colors">
+                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Hasil Output</span>
+                        <div id="action-buttons" class="hidden flex gap-2">
+                            <button id="btn-copy" onclick="copyToClipboard()" class="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-green-500 transition-colors">
                                 <i data-lucide="copy" class="w-4 h-4"></i>
                             </button>
-                            <button id="download-btn" onclick="downloadImage()" class="hidden p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-green-500 transition-colors">
+                            <button id="btn-download" onclick="triggerDownload()" class="hidden p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-green-500 transition-colors">
                                 <i data-lucide="download" class="w-4 h-4"></i>
                             </button>
                         </div>
                     </div>
                     
-                    <div id="output-content" class="p-8 flex-1 flex flex-col items-center justify-center text-center">
-                        <div id="empty-state" class="opacity-20">
+                    <div id="render-area" class="p-8 flex-1 flex flex-col items-center justify-center relative">
+                        <!-- Idle State -->
+                        <div id="state-idle" class="text-center opacity-20">
                             <i data-lucide="sparkles" class="w-12 h-12 mx-auto mb-2"></i>
-                            <p class="text-xs uppercase font-bold tracking-widest">Awaiting Command</p>
+                            <p class="text-xs font-bold uppercase">Menunggu Perintah</p>
                         </div>
                         
-                        <div id="loading-state" class="hidden flex flex-col items-center gap-4">
+                        <!-- Loading State -->
+                        <div id="state-loading" class="hidden flex flex-col items-center gap-4">
                             <div class="loader"></div>
-                            <p class="text-[10px] text-green-500 font-bold uppercase tracking-widest animate-pulse">Processing...</p>
+                            <p class="text-[10px] text-green-500 font-bold uppercase tracking-widest animate-pulse">Memproses AI...</p>
                         </div>
 
-                        <div id="text-result" class="hidden w-full text-left text-gray-300 leading-relaxed text-sm bg-white/5 p-4 rounded-lg border border-white/5 custom-scrollbar overflow-y-auto max-h-[300px]"></div>
+                        <!-- Result Display -->
+                        <div id="res-text-box" class="hidden w-full text-left text-gray-300 leading-relaxed text-sm bg-white/5 p-5 rounded-xl border border-white/5 overflow-y-auto max-h-[300px]"></div>
                         
-                        <div id="image-result-container" class="hidden w-full animate-in zoom-in-95 duration-500">
-                            <img id="image-result" class="w-full h-auto rounded-xl shadow-2xl border border-white/10">
+                        <div id="res-image-box" class="hidden w-full">
+                            <img id="output-image" class="w-full h-auto rounded-xl shadow-2xl border border-white/10">
                         </div>
                     </div>
                 </div>
 
-                <div class="flex gap-4 p-4 bg-white/[0.02] border border-white/5 rounded-2xl">
-                    <div class="w-10 h-10 shrink-0 bg-green-500/10 rounded-full flex items-center justify-center">
-                        <i data-lucide="zap" class="w-5 h-5 text-green-500"></i>
-                    </div>
-                    <div class="space-y-1">
-                        <p class="text-xs font-bold text-gray-300">Tips Cepat</p>
-                        <p class="text-[10px] text-gray-500 leading-normal">
-                            Pastikan Anda menggunakan gambar yang jelas. Mode Auto akan langsung memproses gambar setelah diunggah.
-                        </p>
-                    </div>
+                <div id="error-box" class="hidden p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex gap-3">
+                    <i data-lucide="alert-circle" class="w-5 h-5 text-red-500 shrink-0"></i>
+                    <p id="error-msg" class="text-xs text-red-400"></p>
                 </div>
             </div>
         </div>
     </main>
 
     <script>
-        // State Management
+        // Inisialisasi
+        const apiKey = ""; // Disediakan oleh sistem runtime
         let currentTab = 'describe';
-        let base64Image = null;
         let isAutoMode = false;
-        let isLoading = false;
-        const apiKey = ""; // Runtime provided
+        let base64Image = null;
+        let generatedImageUrl = null;
 
-        // Initialize Lucide Icons
         lucide.createIcons();
 
-        // Elements
-        const fileInput = document.getElementById('file-input');
-        const imagePreview = document.getElementById('image-preview');
-        const previewContainer = document.getElementById('preview-container');
-        const uploadPrompt = document.getElementById('upload-prompt');
-        const promptInput = document.getElementById('prompt-input');
+        // Elemen UI
+        const fileInput = document.getElementById('input-file');
+        const mainPreview = document.getElementById('main-preview');
+        const previewBox = document.getElementById('img-preview-box');
+        const uploadHint = document.getElementById('upload-hint');
+        const promptInput = document.getElementById('prompt-text');
 
-        // Tab Switching
-        function switchTab(tab) {
+        // Navigasi Tab
+        function setTab(tab) {
             currentTab = tab;
-            document.getElementById('btn-describe').className = tab === 'describe' ? 'tab-active px-5 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2' : 'text-gray-400 hover:bg-white/5 px-5 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2';
-            document.getElementById('btn-generate').className = tab === 'generate' ? 'tab-active px-5 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2' : 'text-gray-400 hover:bg-white/5 px-5 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2';
+            // Update UI Tab
+            document.getElementById('tab-describe').className = tab === 'describe' ? 'tab-active px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all' : 'px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 text-gray-400 hover:bg-white/5 transition-all';
+            document.getElementById('tab-generate').className = tab === 'generate' ? 'tab-active px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all' : 'px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 text-gray-400 hover:bg-white/5 transition-all';
             
-            document.getElementById('generate-controls').style.display = tab === 'generate' ? 'block' : 'none';
-            document.getElementById('auto-toggle-container').style.display = tab === 'generate' ? 'block' : 'none';
-            document.getElementById('btn-text').innerText = tab === 'describe' ? 'ANALISIS SEKARANG' : 'GENERATE SEKARANG';
+            // Show/Hide Elements
+            document.getElementById('generate-inputs').classList.toggle('hidden', tab !== 'generate');
+            document.getElementById('auto-mode-container').classList.toggle('hidden', tab !== 'generate');
+            document.getElementById('btn-execute-text').innerText = tab === 'describe' ? 'ANALISIS SEKARANG' : 'GENERATE SEKARANG';
             
             clearResult();
+            lucide.createIcons();
         }
 
-        // Image Processing
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) handleFile(file);
-        });
+        // Penanganan Gambar
+        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
 
-        // Clipboard Paste
         window.addEventListener('paste', (e) => {
             const items = e.clipboardData.items;
             for (let i = 0; i < items.length; i++) {
-                if (items[i].type.indexOf('image') !== -1) {
-                    handleFile(items[i].getAsFile());
-                }
+                if (items[i].type.indexOf('image') !== -1) handleFile(items[i].getAsFile());
             }
         });
 
-        // Drag & Drop
-        const dropZone = document.getElementById('drop-zone');
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-green-500'); });
-        dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('border-green-500'); });
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('border-green-500');
-            if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
-        });
-
         function handleFile(file) {
-            if (!file.type.startsWith('image/')) return;
+            if (!file || !file.type.startsWith('image/')) return;
             const reader = new FileReader();
             reader.onload = (e) => {
                 base64Image = e.target.result.split(',')[1];
-                imagePreview.src = e.target.result;
-                previewContainer.classList.remove('hidden');
-                uploadPrompt.classList.add('hidden');
+                mainPreview.src = e.target.result;
+                previewBox.classList.remove('hidden');
+                uploadHint.classList.add('hidden');
                 
-                if (isAutoMode && currentTab === 'generate') {
-                    autoProcess();
-                }
+                if (isAutoMode && currentTab === 'generate') autoGenerate();
             };
             reader.readAsDataURL(file);
         }
 
-        function clearImage() {
+        function resetInput() {
             base64Image = null;
-            imagePreview.src = '';
-            previewContainer.classList.add('hidden');
-            uploadPrompt.classList.remove('hidden');
+            mainPreview.src = '';
+            previewBox.classList.add('hidden');
+            uploadHint.classList.remove('hidden');
             fileInput.value = '';
+            clearResult();
         }
 
         function toggleAutoMode() {
             isAutoMode = !isAutoMode;
-            const btn = document.getElementById('auto-mode-btn');
+            const btn = document.getElementById('auto-mode-toggle');
             const status = document.getElementById('auto-status');
             const icon = document.getElementById('zap-icon');
             
             if (isAutoMode) {
-                btn.classList.replace('text-gray-500', 'text-green-400');
-                btn.classList.add('border-green-500/50', 'bg-green-500/10');
+                btn.classList.add('text-green-400', 'border-green-500/50', 'bg-green-500/10');
                 status.innerText = 'ON';
                 icon.classList.add('fill-green-400');
             } else {
-                btn.classList.replace('text-green-400', 'text-gray-500');
-                btn.classList.remove('border-green-500/50', 'bg-green-500/10');
+                btn.classList.remove('text-green-400', 'border-green-500/50', 'bg-green-500/10');
                 status.innerText = 'OFF';
                 icon.classList.remove('fill-green-400');
             }
         }
 
-        // AI Actions
-        async function handleAction() {
-            if (!base64Image && currentTab === 'describe') return;
-            if (!promptInput.value && currentTab === 'generate' && !isAutoMode) return;
-            
+        // Logika Utama AI
+        async function startProcess() {
+            if (!base64Image) return showError("Silakan upload gambar terlebih dahulu.");
+            if (currentTab === 'generate' && !promptInput.value && !isAutoMode) return showError("Masukkan prompt instruksi.");
+
             setLoading(true);
-            if (currentTab === 'describe') {
-                await describeImage();
-            } else {
-                await generateImage();
-            }
-            setLoading(false);
-        }
-
-        async function describeImage() {
-            const systemPrompt = "Deskripsikan gambar secara detail. ATURAN KETAT: 1. JANGAN mendeskripsikan: Etnis, Rambut, Gaya Rambut, Warna Rambut, Kumis, Janggut, Jenggot. 2. HANYA ekspresi wajah. 3. Tambahkan '(gambar referensi)' setelah subjek utama. 4. Mulailah langsung dengan subjek tanpa kata pembuka.";
+            hideError();
             
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Deskripsikan gambar ini." }, { inlineData: { mimeType: "image/png", data: base64Image } }] }],
-                        systemInstruction: { parts: [{ text: systemPrompt }] }
-                    })
-                });
-                const data = await response.json();
-                const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Gagal mendapatkan deskripsi.";
-                showTextResult(text);
-            } catch (e) {
-                showTextResult("Terjadi kesalahan pada server.");
-            }
-        }
-
-        async function generateImage(customPrompt = null) {
-            const finalPrompt = customPrompt || promptInput.value;
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: finalPrompt }, { inlineData: { mimeType: "image/png", data: base64Image } }] }],
-                        generationConfig: { responseModalities: ['TEXT', 'IMAGE'] }
-                    })
-                });
-                const data = await response.json();
-                const base64 = data.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-                if (base64) {
-                    showImageResult(`data:image/png;base64,${base64}`);
+                if (currentTab === 'describe') {
+                    await callDescribeAPI();
                 } else {
-                    showTextResult("Gagal generate gambar. Coba prompt lain.");
+                    await callGenerateAPI(promptInput.value);
                 }
-            } catch (e) {
-                showTextResult("Gagal memproses gambar.");
+            } catch (err) {
+                showError("Gagal terhubung ke API. Silakan coba lagi.");
+            } finally {
+                setLoading(false);
             }
         }
 
-        async function autoProcess() {
-            setLoading(true);
-            const prompt = await fetchAutoPrompt();
-            await generateImage(prompt);
-            setLoading(false);
+        async function callDescribeAPI() {
+            const systemPrompt = "Deskripsikan gambar detail. JANGAN sebut Etnis, Rambut, Gaya Rambut, Warna Rambut, Kumis, Janggut. CUKUP ekspresi. Tambah '(gambar referensi)' setelah subjek utama. Mulai langsung ke subjek.";
+            
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: "Deskripsikan gambar ini secara detail sesuai aturan." }, { inlineData: { mimeType: "image/png", data: base64Image } }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] }
+                })
+            });
+            const data = await response.json();
+            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text) renderText(text);
+            else throw new Error("Kosong");
         }
 
-        async function fetchAutoPrompt() {
+        async function callGenerateAPI(prompt) {
+            const finalPrompt = prompt || "Cinematic and detailed transformation";
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: finalPrompt }, { inlineData: { mimeType: "image/png", data: base64Image } }] }],
+                    generationConfig: { responseModalities: ['TEXT', 'IMAGE'] }
+                })
+            });
+            const data = await response.json();
+            const b64 = data.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+            if (b64) renderImage(`data:image/png;base64,${b64}`);
+            else throw new Error("Kosong");
+        }
+
+        async function triggerAutoPrompt() {
+            if (!base64Image) return showError("Upload gambar dulu.");
+            setLoading(true);
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Berikan 1 prompt inggris singkat untuk memodifikasi gambar ini secara artistik." }, { inlineData: { mimeType: "image/png", data: base64Image } }] }]
+                        contents: [{ parts: [{ text: "Berikan 1 prompt inggris singkat modifikasi gambar ini." }, { inlineData: { mimeType: "image/png", data: base64Image } }] }]
                     })
                 });
                 const data = await response.json();
-                const p = data.candidates?.[0]?.content?.parts?.[0]?.text || "Cinematic artistic style";
-                promptInput.value = p;
-                return p;
+                promptInput.value = data.candidates?.[0]?.content?.parts?.[0]?.text || "Cinematic artistic style";
             } catch (e) {
-                return "Cinematic style";
+                promptInput.value = "Cinematic style";
+            } finally {
+                setLoading(false);
             }
         }
 
-        async function generateAutoPrompt() {
-            if (!base64Image) return;
+        async function autoGenerate() {
             setLoading(true);
-            await fetchAutoPrompt();
-            setLoading(false);
+            try {
+                // Get Auto Prompt First
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: "Give 1 short english prompt to enhance this image." }, { inlineData: { mimeType: "image/png", data: base64Image } }] }]
+                    })
+                });
+                const data = await response.json();
+                const p = data.candidates?.[0]?.content?.parts?.[0]?.text || "Cinematic style";
+                promptInput.value = p;
+                await callGenerateAPI(p);
+            } catch (e) {
+                showError("Auto generate gagal.");
+            } finally {
+                setLoading(false);
+            }
         }
 
-        // UI Handlers
-        function setLoading(state) {
-            isLoading = state;
-            document.getElementById('loading-state').style.display = state ? 'flex' : 'none';
-            document.getElementById('empty-state').style.display = state ? 'none' : (document.getElementById('text-result').classList.contains('hidden') && document.getElementById('image-result-container').classList.contains('hidden') ? 'block' : 'none');
-            document.getElementById('main-action-btn').disabled = state;
+        // Utilitas UI
+        function setLoading(s) {
+            document.getElementById('state-loading').classList.toggle('hidden', !s);
+            document.getElementById('state-idle').classList.toggle('hidden', s || base64Image === null);
+            document.getElementById('btn-execute').disabled = s;
+            if (s) clearResult();
         }
 
-        function showTextResult(text) {
-            document.getElementById('text-result').innerText = text;
-            document.getElementById('text-result').classList.remove('hidden');
-            document.getElementById('image-result-container').classList.add('hidden');
-            document.getElementById('output-actions').classList.remove('hidden');
-            document.getElementById('download-btn').classList.add('hidden');
-            document.getElementById('empty-state').classList.add('hidden');
+        function renderText(text) {
+            const box = document.getElementById('res-text-box');
+            box.innerText = text;
+            box.classList.remove('hidden');
+            document.getElementById('res-image-box').classList.add('hidden');
+            document.getElementById('action-buttons').classList.remove('hidden');
+            document.getElementById('btn-download').classList.add('hidden');
+            document.getElementById('state-idle').classList.add('hidden');
         }
 
-        function showImageResult(src) {
-            document.getElementById('image-result').src = src;
-            document.getElementById('image-result-container').classList.remove('hidden');
-            document.getElementById('text-result').classList.add('hidden');
-            document.getElementById('output-actions').classList.remove('hidden');
-            document.getElementById('download-btn').classList.remove('hidden');
-            document.getElementById('empty-state').classList.add('hidden');
+        function renderImage(src) {
+            generatedImageUrl = src;
+            const img = document.getElementById('output-image');
+            img.src = src;
+            document.getElementById('res-image-box').classList.remove('hidden');
+            document.getElementById('res-text-box').classList.add('hidden');
+            document.getElementById('action-buttons').classList.remove('hidden');
+            document.getElementById('btn-download').classList.remove('hidden');
+            document.getElementById('state-idle').classList.add('hidden');
         }
 
         function clearResult() {
-            document.getElementById('text-result').classList.add('hidden');
-            document.getElementById('image-result-container').classList.add('hidden');
-            document.getElementById('output-actions').classList.add('hidden');
-            document.getElementById('empty-state').classList.remove('hidden');
+            document.getElementById('res-text-box').classList.add('hidden');
+            document.getElementById('res-image-box').classList.add('hidden');
+            document.getElementById('action-buttons').classList.add('hidden');
+            document.getElementById('state-idle').classList.remove('hidden');
+            generatedImageUrl = null;
         }
 
-        function copyResult() {
-            const text = document.getElementById('text-result').innerText;
-            const el = document.createElement('textarea');
-            el.value = text;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            alert("Hasil disalin ke clipboard!");
+        function showError(msg) {
+            const box = document.getElementById('error-box');
+            document.getElementById('error-msg').innerText = msg;
+            box.classList.remove('hidden');
+            setTimeout(hideError, 5000);
         }
 
-        function downloadImage() {
-            const src = document.getElementById('image-result').src;
-            if (!src) return;
-            const link = document.createElement('a');
-            link.href = src;
-            link.download = `gebey-gembher-${Date.now()}.png`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+        function hideError() {
+            document.getElementById('error-box').classList.add('hidden');
+        }
+
+        function copyToClipboard() {
+            const text = document.getElementById('res-text-box').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Berhasil disalin!");
+            }).catch(() => {
+                // Fallback
+                const el = document.createElement('textarea');
+                el.value = text;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                alert("Berhasil disalin!");
+            });
+        }
+
+        function triggerDownload() {
+            if (!generatedImageUrl) return;
+            // Gunakan metode Blob untuk menghindari blokir iframe browser
+            const base64Parts = generatedImageUrl.split(',');
+            const contentType = base64Parts[0].split(':')[1].split(';')[0];
+            const byteCharacters = atob(base64Parts[1]);
+            const byteArrays = [];
+            
+            for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+                const slice = byteCharacters.slice(offset, offset + 512);
+                const byteNumbers = new Array(slice.length);
+                for (let i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                byteArrays.push(new Uint8Array(byteNumbers));
+            }
+            
+            const blob = new Blob(byteArrays, {type: contentType});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `gebey-gembher-${Date.now()}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
     </script>
 </body>
 </html>
-
-```
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
-    } catch (err) {}
-    document.body.removeChild(textArea);
-  };
-
-  const handleGenerateAutoPrompt = async (imgData = base64Image) => {
-    if (!imgData) return;
-    setLoading(true);
-    try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { text: "Berikan deskripsi singkat 1 kalimat dalam bahasa Inggris untuk memodifikasi gambar ini menjadi lebih artistik dan sinematik. Langsung ke inti prompt." },
-              { inlineData: { mimeType: "image/png", data: imgData } }
-            ]
-          }]
-        })
-      });
-      const data = await response.json();
-      const autoPrompt = data.candidates?.[0]?.content?.parts?.[0]?.text || "Cinematic fantasy style, high detail";
-      setPrompt(autoPrompt);
-      return autoPrompt;
-    } catch (error) {
-      setPrompt("Cinematic masterpiece, highly detailed");
-      return "Cinematic masterpiece, highly detailed";
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDescribe = async () => {
-    if (!base64Image) return;
-    setLoading(true);
-    setResult(null);
-
-    const systemPrompt = `Deskripsikan gambar secara detail. ATURAN KETAT: 1. JANGAN mendeskripsikan: Etnis, Rambut, Gaya Rambut, Warna Rambut, Kumis, Janggut, Jenggot. 2. HANYA ekspresi wajah (senyum, marah). 3. Tambahkan "(gambar referensi)" setelah subjek utama. 4. Mulailah langsung dengan subjek tanpa kata pembuka.`;
-
-    try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { text: "Deskripsikan gambar sesuai aturan." },
-              { inlineData: { mimeType: "image/png", data: base64Image } }
-            ]
-          }],
-          systemInstruction: { parts: [{ text: systemPrompt }] }
-        })
-      });
-
-      const data = await response.json();
-      setResult(data.candidates?.[0]?.content?.parts?.[0]?.text || "Gagal mendapatkan deskripsi.");
-    } catch (error) {
-      setResult("Terjadi kesalahan sistem.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGenerate = async (customPrompt = prompt) => {
-    const finalPrompt = customPrompt || prompt;
-    if (!finalPrompt) return;
-    setLoading(true);
-    setGeneratedImage(null);
-
-    try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { text: finalPrompt },
-              ...(base64Image ? [{ inlineData: { mimeType: "image/png", data: base64Image } }] : [])
-            ]
-          }],
-          generationConfig: { responseModalities: ['TEXT', 'IMAGE'] }
-        })
-      });
-
-      const data = await response.json();
-      const base64 = data.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-      if (base64) setGeneratedImage(`data:image/png;base64,${base64}`);
-      else setResult("Gagal menghasilkan gambar.");
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAutoGenerate = async (imgData) => {
-    const autoPrompt = await handleGenerateAutoPrompt(imgData);
-    if (autoPrompt) handleGenerate(autoPrompt);
-  };
-
-  return (
-    <div className="min-h-screen bg-[#0a0a0a] text-gray-100 font-sans selection:bg-green-500/30">
-      <header className="border-b border-white/10 bg-[#0d0d0d]/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(34,197,94,0.4)] animate-pulse">
-              <Sparkles className="text-black w-5 h-5" />
-            </div>
-            <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-white to-green-400 bg-clip-text text-transparent">
-              Gebey Gembher
-            </h1>
-          </div>
-          <div className="text-[10px] text-gray-500 uppercase tracking-widest font-medium">by: Fahrul Anam</div>
-        </div>
-      </header>
-
-      <main className="max-w-4xl mx-auto px-6 py-8 pb-24">
-        <div className="flex flex-wrap justify-between items-center mb-8 gap-4">
-          <div className="flex gap-1 p-1 bg-white/5 rounded-xl border border-white/5 w-fit">
-            <button onClick={() => setActiveTab('describe')} className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'describe' ? 'bg-green-500 text-black shadow-lg' : 'text-gray-400 hover:bg-white/5'}`}>
-              <Camera className="w-4 h-4 inline mr-2" /> Deskripsi
-            </button>
-            <button onClick={() => setActiveTab('generate')} className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'generate' ? 'bg-green-500 text-black shadow-lg' : 'text-gray-400 hover:bg-white/5'}`}>
-              <ImageIcon className="w-4 h-4 inline mr-2" /> Generate
-            </button>
-          </div>
-
-          {activeTab === 'generate' && (
-            <div onClick={() => setAutoMode(!autoMode)} className={`flex items-center gap-2 px-4 py-2 rounded-xl border cursor-pointer transition-all ${autoMode ? 'bg-green-500/10 border-green-500/50 text-green-400' : 'bg-white/5 border-white/10 text-gray-500'}`}>
-              <Zap className={`w-4 h-4 ${autoMode ? 'fill-green-400' : ''}`} />
-              <span className="text-xs font-bold uppercase tracking-tighter">Auto: {autoMode ? 'ON' : 'OFF'}</span>
-            </div>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          <div className="space-y-6">
-            <div onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop} className={`relative aspect-square rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center overflow-hidden group ${dragActive ? 'border-green-500 bg-green-500/10' : 'border-white/10 hover:border-white/20 bg-white/5'}`}>
-              {image ? (
-                <>
-                  <img src={image} alt="Preview" className="w-full h-full object-cover" />
-                  <button onClick={() => setImage(null)} className="absolute top-4 right-4 p-2 bg-black/60 rounded-full hover:bg-red-500 transition-all shadow-xl">
-                    <AlertCircle className="w-5 h-5" />
-                  </button>
-                </>
-              ) : (
-                <div className="text-center p-6">
-                  <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                    <Upload className="text-gray-400 group-hover:text-green-500 w-6 h-6" />
-                  </div>
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Upload / Drag / Paste</p>
-                </div>
-              )}
-              {!image && <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => processImage(e.target.files[0])} />}
-            </div>
-
-            {activeTab === 'generate' && (
-              <div className="space-y-3">
-                <div className="flex justify-between items-center px-1">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Prompt</label>
-                  <button onClick={() => handleGenerateAutoPrompt()} disabled={!image || loading} className="text-[10px] font-bold text-green-500 hover:text-green-400 uppercase disabled:opacity-30">
-                    <Wand2 className="w-3 h-3 inline mr-1" /> Auto Prompt
-                  </button>
-                </div>
-                <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Tulis instruksi modifikasi..." className="w-full h-24 bg-white/5 border border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:ring-1 focus:ring-green-500/50 transition-all resize-none" />
-              </div>
-            )}
-
-            <button disabled={loading || (!image && activeTab === 'describe') || (!prompt && activeTab === 'generate')} onClick={activeTab === 'describe' ? handleDescribe : () => handleGenerate()} className="w-full py-4 bg-green-500 disabled:bg-white/5 disabled:text-gray-600 text-black font-bold rounded-xl flex items-center justify-center gap-3 hover:bg-green-400 transition-all shadow-lg shadow-green-500/20 active:scale-95">
-              {loading ? <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" /> : <span>{activeTab === 'describe' ? 'ANALISIS SEKARANG' : 'GENERATE SEKARANG'}</span>}
-            </button>
-          </div>
-
-          <div className="space-y-6">
-            <div className="min-h-[400px] bg-white/[0.03] border border-white/10 rounded-2xl overflow-hidden flex flex-col relative group">
-              <div className="px-5 py-3 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
-                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Output Panel</span>
-                {(result || generatedImage) && (
-                  <div className="flex gap-1">
-                    {result && <button onClick={() => handleCopy(result)} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-green-500 transition-colors">{isCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}</button>}
-                    {generatedImage && (
-                      <>
-                        <button onClick={downloadGeneratedImage} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-green-500 transition-colors">
-                          <Download className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => window.open(generatedImage)} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-green-500 transition-colors">
-                          <Maximize2 className="w-4 h-4" />
-                        </button>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-              
-              <div className="p-8 flex-1 flex flex-col items-center justify-center">
-                {loading ? (
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-2 border-green-500/20 border-t-green-500 rounded-full animate-spin" />
-                    <p className="text-[10px] text-green-500 font-bold uppercase tracking-widest animate-pulse">Processing...</p>
-                  </div>
-                ) : generatedImage && activeTab === 'generate' ? (
-                  <img src={generatedImage} alt="Result" className="w-full h-auto rounded-xl shadow-2xl border border-white/10 animate-in zoom-in-95 duration-500" />
-                ) : result && activeTab === 'describe' ? (
-                  <p className="text-gray-300 leading-relaxed text-sm bg-white/5 p-4 rounded-lg border border-white/5 w-full">{result}</p>
-                ) : (
-                  <div className="text-center opacity-20"><Sparkles className="w-12 h-12 mx-auto mb-2" /><p className="text-xs uppercase font-bold tracking-widest">Awaiting Command</p></div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-
-      <footer className="py-8 text-center text-[10px] text-gray-700 font-bold uppercase tracking-[0.3em]">
-        Gebey Gembher • AI Engine 2024
-      </footer>
-    </div>
-  );
-};
-
-export default App;
-
-```
